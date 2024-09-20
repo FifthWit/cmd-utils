@@ -1,3 +1,4 @@
+// functions/decode.go
 package functions
 
 import (
@@ -5,6 +6,12 @@ import (
 	"encoding/hex"
 	"net/url"
 )
+
+var Decoders = map[string]DecodeFunc{
+	"base64": Base64Decode,
+	"hex":    HexDecode,
+	"url":    URLDecode,
+}
 
 func Base64Decode(input string) (string, error) {
 	decoded, err := base64.StdEncoding.DecodeString(input)

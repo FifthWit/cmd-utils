@@ -2,83 +2,60 @@ package main
 
 import (
 	"cmd-utils/functions"
-	"flag"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("expected subcommand")
+	if len(os.Args) < 4 {
+		fmt.Println("Usage: go run main.go <encode|decode|random> -<type> <input>")
 		os.Exit(1)
 	}
 
-	switch os.Args[1] {
-	case "decode":
-		decodeCmd := flag.NewFlagSet("decode", flag.ExitOnError)
-		base64Flag := decodeCmd.String("base64", "", "Base64 string to decode")
-		hexFlag := decodeCmd.String("hex", "", "Hex string to decode")
-		urlFlag := decodeCmd.String("url", "", "URL string to decode")
-		decodeCmd.Parse(os.Args[2:])
+	action := os.Args[1]
+	typeFlag := os.Args[2]
+	input := os.Args[3]
 
-		if *base64Flag != "" {
-			result, err := functions.Base64Decode(*base64Flag)
-			if err != nil {
-				fmt.Println("Error decoding base64:", err)
-				os.Exit(1)
-			}
-			fmt.Println(result)
-		} else if *hexFlag != "" {
-			result, err := functions.HexDecode(*hexFlag)
-			if err != nil {
-				fmt.Println("Error decoding hex:", err)
-				os.Exit(1)
-			}
-			fmt.Println(result)
-		} else if *urlFlag != "" {
-			result, err := functions.URLDecode(*urlFlag)
-			if err != nil {
-				fmt.Println("Error decoding URL:", err)
-				os.Exit(1)
-			}
-			fmt.Println(result)
-		} else {
-			fmt.Println("Please provide a base64 string to decode using -base64 flag")
-		}
-
+	switch action {
 	case "encode":
-		encodeCmd := flag.NewFlagSet("encode", flag.ExitOnError)
-		base64Flag := encodeCmd.String("base64", "", "Input string to encode")
-		hexFlag := encodeCmd.String("hex", "", "Input string to encode")
-		urlFlag := encodeCmd.String("url", "", "Input string to encode")
-		encodeCmd.Parse(os.Args[2:])
-		if *base64Flag != "" {
-			result, err := functions.Base64Encode(*base64Flag)
+		if encoder, exists := functions.Encoders[typeFlag[1:]]; exists {
+			result, err := encoder(input)
 			if err != nil {
-				fmt.Println("Error encoding base64:", err)
-				os.Exit(1)
-			}
-			fmt.Println(result)
-		} else if *hexFlag != "" {
-			result, error := functions.HexEncode(*hexFlag)
-			if error != nil {
-				fmt.Println("Error encoding hex:", error)
-				os.Exit(1)
-			}
-			fmt.Println(result)
-		} else if *urlFlag != "" {
-			result, error := functions.URLEncode(*urlFlag)
-			if error != nil {
-				fmt.Println("Error encoding URL:", error)
+				fmt.Println("Error encoding:", err)
 				os.Exit(1)
 			}
 			fmt.Println(result)
 		} else {
-			fmt.Println("Please provide an input string to encode")
+			fmt.Println("Unknown encoding type:", typeFlag)
+			os.Exit(1)
 		}
-
+	case "decode":
+		if decoder, exists := functions.Decoders[typeFlag[1:]]; exists {
+			result, err := decoder(input)
+			if err != nil {
+				fmt.Println("Error decoding:", err)
+				os.Exit(1)
+			}
+			fmt.Println(result)
+		} else {
+			fmt.Println("Unknown decoding type:", typeFlag)
+			os.Exit(1)
+		}
+	case "random":
+		if typeFlag != "-length" {
+			fmt.Println("Unknown flag:", typeFlag)
+			os.Exit(1)
+		}
+		length, err := strconv.Atoi(input)
+		if err != nil {
+			fmt.Println("Invalid length:", input)
+			os.Exit(1)
+		}
+		result := functions.RandomString(length)
+		fmt.Println(result)
 	default:
-		fmt.Println("No Command provided, please provide a valid command or use -help")
+		fmt.Println("Unknown action:", action)
 		os.Exit(1)
 	}
 }

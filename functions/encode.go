@@ -1,3 +1,4 @@
+// functions/encode.go
 package functions
 
 import (
@@ -5,6 +6,12 @@ import (
 	"encoding/hex"
 	"net/url"
 )
+
+var Encoders = map[string]EncodeFunc{
+	"base64": Base64Encode,
+	"hex":    HexEncode,
+	"url":    URLEncode,
+}
 
 func Base64Encode(input string) (string, error) {
 	encoded := base64.StdEncoding.EncodeToString([]byte(input))
