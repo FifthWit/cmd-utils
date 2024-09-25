@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if len(os.Args) < 4 {
-		fmt.Println("Usage: go run main.go <encode|decode|random> -<type> <input>")
+		fmt.Println("Usage: go run main.go <encode|decode|random|whois> -<type> <input>")
 		os.Exit(1)
 	}
 
@@ -54,6 +54,22 @@ func main() {
 		}
 		result := functions.RandomString(length)
 		fmt.Println(result)
+	case "whois":
+		if typeFlag == "-ip" {
+			result, err := functions.GetIPs(input)
+			if err != nil {
+				fmt.Println("Error getting IPs:", err)
+				os.Exit(1)
+			}
+			fmt.Println(result)
+		} else {
+			result, err := functions.WhoIs(input)
+			if err != nil {
+				fmt.Println("Error performing WHOIS lookup:", err)
+				os.Exit(1)
+			}
+			fmt.Println(result)
+		}
 	default:
 		fmt.Println("Unknown action:", action)
 		os.Exit(1)

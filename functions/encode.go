@@ -1,4 +1,3 @@
-// functions/encode.go
 package functions
 
 import (

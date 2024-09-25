@@ -1,4 +1,3 @@
-// functions/decode.go
 package functions
 
 import (
